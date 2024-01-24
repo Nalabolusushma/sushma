@@ -1,0 +1,201 @@
+****how to create backet using boto3
+
+import boto3
+
+client = boto3.client('s3')
+response = client.create_bucket(
+    Bucket='suchmareddy-suchi-11'
+)
+______________________________________________________________
+***how to upload a file to s3
+import boto3
+ 
+# Create an S3 client  
+s3_client = boto3.client('s3')
+response = s3_client.upload_file( r'C:\Users\DELL\Documents\boto3.txt',
+                                 'suchireddy-1',
+                                 'boto3.txt')
+___________________________________________________________________
+****how to create instance using boto3
+
+import boto3
+
+# Create an EC2 client
+client = boto3.client('ec2')
+# Launch the EC2 instance
+response = client.run_instances(
+    ImageId='ami-0c7217cdde317cfec',  # Replace with the desired AMI ID
+    InstanceType='t2.micro',  # Replace with the desired instance type
+    MinCount=1,
+    MaxCount=1,
+    TagSpecifications=[
+     {
+         'ResourceType': 'instance',
+         'Tags':[
+             {
+                 'Key': 'Name',
+                'Value': 'sushma_instance'
+             }
+         ]
+     }
+    ]
+)
+
+_______________________________________________________________________________
+***how to set an alarm using boto3
+
+import boto3
+ 
+cloudwatch = boto3.client('cloudwatch')
+ 
+response = cloudwatch.put_metric_alarm(
+    AlarmName='firstalaram',
+    ComparisonOperator='GreaterThanThreshold',
+    EvaluationPeriods=1,
+    MetricName='CPUUtilization',
+    Namespace='AWS/EC2',
+    Period=30,
+    Statistic='Average',
+    Threshold=3,
+    ActionsEnabled=False,
+    Dimensions=[
+        {
+          'Name': 'InstanceId',
+          'Value': 'i-070c43dc1a5ed46af'
+        },
+    ],
+)
+ 
+print(response)
+______________________________________________________________________
+***how create log groups in cloudwatch using boto3
+
+import boto3
+cloudwatch_logs = boto3.client('logs', region_name='us-east-1')
+log_group_name = 'MyLog1'
+cloudwatch_logs.create_log_group(
+    logGroupName=log_group_name
+)
+
+print(log_group_name)
+
+__________________________________________________________________________
+
+*** how to create our own mertic in namespace in CW using boto3
+
+import boto3
+
+cloudwatch = boto3.client('cloudwatch', region_name='us-east-1')
+namespace = 'MyCustomNamespace'
+metric_name = 'MyCustomMetric'
+dimensions = [
+    {
+        'Name': 'InstanceId',
+        'Value': 'i-0e8f9b10cc63e5187'  # Replace with the instance ID you want to monitor
+    }
+]
+metric_data = [
+    {
+        'MetricName': metric_name,
+        'Dimensions': dimensions,
+        'Value': 42.0,  # Replace with your data point value
+        'Unit': 'Count'  # Use an appropriate unit here
+    }
+]
+
+cloudwatch.put_metric_data(
+    Namespace=namespace,
+    MetricData=metric_data
+)
+_________________________________________________________________________________
+**** how to create sns topic arn
+import boto3
+
+# Create an SNS client
+sns = boto3.client('sns', region_name='us-east-1')
+
+# Create an SNS topic
+response = sns.create_topic(Name='UPIUtilization')
+
+# Get the ARN of the created SNS topic
+sns_topic_arn = response['TopicArn']
+
+print(sns_topic_arn)
+_____________________________________________________________________________
+**** how to subscribe sns
+import boto3
+
+# Create an SNS client
+sns = boto3.client('sns', region_name='us-east-1')
+
+# SNS topic ARN
+sns_topic_arn = 'arn:aws:sns:us-east-1:121572617256:UPIUtilization'
+
+# Email address to subscribe
+email_address = 'sushmareddyn2@gmail.com'
+
+# Create an email subscription
+sns.subscribe(
+    TopicArn=sns_topic_arn,
+    Protocol='email',
+    Endpoint=email_address
+)
+
+print(email_address)
+__________________________________________________________________________
+****** how to create an alarm using my custom metric and my sns
+import boto3
+
+# Create a CloudWatch client
+cloudwatch = boto3.client('cloudwatch', region_name='us-east-1')
+
+# Define your alarm parameters
+alarm_name = 'MyMetricAlarm'
+namespace = 'MyCustomNamespace'
+metric_name = 'MyCustomMetric'
+threshold = 20.0  # Replace with your threshold value
+comparison_operator = 'GreaterThanThreshold'  # Change as needed
+evaluation_periods = 1
+period = 60  # Replace with your data aggregation period (in seconds)
+statistic = 'SampleCount'  # Choose the appropriate statistic
+alarm_description = 'My Metric Alarm is greater than 20%'
+alarm_actions = ['arn:aws:sns:us-east-1:121572617256:UPIUtilization']  # Replace with your SNS topic ARN
+
+# Create the alarm
+cloudwatch.put_metric_alarm(
+    AlarmName=alarm_name,
+    ComparisonOperator=comparison_operator,
+    EvaluationPeriods=evaluation_periods,
+    MetricName=metric_name,
+    Namespace=namespace,
+    Period=period,
+    Statistic=statistic,
+    Threshold=threshold,
+    AlarmDescription=alarm_description,
+    AlarmActions=alarm_actions,
+    Dimensions=[{'Name': 'InstanceId', 'Value': 'i-0e8f9b10cc63e5187'}]  # Replace with your instance ID
+)
+
+print(alarm_name)
+_______________________________________________________________________________________________________________ 
+****** how to create a lambda function and trigger (event is to stop an instance)
+
+import boto3
+client = boto3.client('sns')
+def lambda_handler(event, context):
+    topic_arn = 'arn:aws:sns:us-east-1:121572617256:lambda'
+    message = 'instance is stopped check it once'
+    client.publish(TopicArn=topic_arn,Message=message) #publish is used for publishing a message to a mobile endpoint
+__________________________________________________________________________________________________________________________
+lambda_handler, is the entry point for your Lambda function. AWS Lambda passes two arguments to this function: event and context.
+
+#event is a dictionary containing information about what triggered the Lambda function. In your case, it's likely an S3 event (like a new file upload).
+context provides information about the runtime environment (like time remaining before the function times out).
+#bucket holds the name of the S3 bucket where the event originated.
+key is the name of the object (file) in the S3 bucket that triggered the event.
+These values are printed, which can be useful for logging and debugging purposes.
+________________________________________________________________________________________
+User-friendly, great for general-purpose use.
+Stability and scalability, enterprise focus.
+Highly stable and secure, extensive enterprise support.
+
